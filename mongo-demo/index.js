@@ -12,8 +12,9 @@ mongoose.connect('mongodb://localhost/playground')
     isPublished: Boolean
   });
 
+const Course = mongoose.model('Course', courseSchema);
+
 async function createCourse() {
-  const Course = mongoose.model('Course', courseSchema);
   const course = new Course({
     name: 'Angular Course',
     author: 'Mosh',
@@ -25,4 +26,15 @@ async function createCourse() {
   console.log(result);
 }
 
-createCourse();
+async function getCourses(){
+  const courses = await Course
+    .find({ author: 'Mosh', isPublished: true })
+    .find({ price: 10 })
+    .find({ price: { $gte: 10, $lte: 20 } })
+    .find({ price: { $in: [10, 15, 20] } })
+    .limit(10)
+    .sort({ name: 1, tags: 1 }); // 1: ascending order -1: desending order
+  console.log(courses);
+}
+
+getCourses();
