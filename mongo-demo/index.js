@@ -31,12 +31,30 @@ async function getCourses(){
   const pageSize = 10;
 
   const courses = await Course
-    .find({ author: 'Mosh', isPublished: true })
-    .skip((pageNumber - 1) * pageSize)
-    .limit(pageSize)
+    .find({ isPublished: true })
+    // .skip((pageNumber - 1) * pageSize)
+    // .limit(pageSize)
     .sort({ name: 1})
-    .select({ name: 1, tags: 1});
+    // .select({ name: 1, tags: 1});
   console.log(courses);
 }
 
+async function updateCourse(id) {
+  const course = await Course.findByIdAndUpdate(id, {
+    $set: {
+      author: 'Jason',
+      isPublished: false
+    }
+  }, { new: true });
+  console.log(course);
+}
+
+async function removeCourse(id) {
+  // const result = await Course.deleteOne({ _id: id});
+  // const result = await Course.deleteMany({ _id: id});
+  const course = await Course.findByIdAndRemove(id);
+  console.log(course);
+}
+
+removeCourse('5b914f2817ad59253b8b7e71');
 getCourses();
