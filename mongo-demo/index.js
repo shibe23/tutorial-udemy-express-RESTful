@@ -15,7 +15,10 @@ mongoose.connect('mongodb://localhost/playground')
     category: {
       type: String,
       required: true,
-      enum: ['web', 'mobile', 'network']
+      enum: ['web', 'mobile', 'network'],
+      lowercase: true,
+      uppercase: true,
+      trim: true
     },
     author: String,
     tags: {
@@ -26,7 +29,7 @@ mongoose.connect('mongodb://localhost/playground')
           setTimeout(() => {
             const result = v && v.length > 0;
              callback(result);
-          }, 4000)
+          }, 1)
         },
         message: 'A course should have at least one tag.'
       }
@@ -37,7 +40,9 @@ mongoose.connect('mongodb://localhost/playground')
       type: Number,
       required: function() {return this.isPublished; },
       min: 10,
-      max: 200
+      max: 200,
+      get: v => Math.round(v),
+      set: v => Math.round(v)
     }
   });
 
@@ -46,11 +51,11 @@ const Course = mongoose.model('Course', courseSchema);
 async function createCourse() {
   const course = new Course({
     name: 'Angular Course',
-    category: 'web',
+    category: 'Web',
     author: 'Mosh',
-    tags: null,
+    tags: ['frontend'],
     isPublished: true,
-    price: 15
+    price: 15.8
   });
 
   try {
@@ -59,7 +64,8 @@ async function createCourse() {
     await course.validate();
   }
   catch (ex) {
-    console.log(ex.message);
+    for (field in ex.errors)
+      console.log(ex.errors[field].message);
   }
 }
 
@@ -68,12 +74,12 @@ async function getCourses(){
   const pageSize = 10;
 
   const courses = await Course
-    .find({ isPublished: true })
+    .find({ _id: '5b914f2817ad59253b8b7e71' })
     // .skip((pageNumber - 1) * pageSize)
     // .limit(pageSize)
     .sort({ name: 1})
-    // .select({ name: 1, tags: 1});
-  console.log(courses);
+    .select({ name: 1, tags: 1, price: 1});
+  console.log(courses[0].price);
 }
 
 async function updateCourse(id) {
@@ -94,5 +100,5 @@ async function removeCourse(id) {
 }
 
 // removeCourse('5b914f2817ad59253b8b7e71');
-// getCourses();
-createCourse();
+getCourses();
+// createCourse();
